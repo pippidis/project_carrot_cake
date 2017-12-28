@@ -18,8 +18,14 @@ class wrangling(object):
             df = msgs[msgs['ISSUER_ID'] == ticker]
             temp.append(df)
         filtered_messages = pd.concat(temp)
-        return filtered_messages
 
+        # Create csv with filtered_messages
+        filtered_messages.to_csv('../data/filtered_messages.csv')
+        return filtered_messages
+    def message_category(self, msgs):
+        '''Returns dataframe of categorized messages'''
+        categories = msgs.CATEGORY.unique()
+        print(categories)
 
 
 

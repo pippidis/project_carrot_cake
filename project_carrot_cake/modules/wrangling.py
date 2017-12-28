@@ -11,10 +11,10 @@ class wrangling(object):
         pass
     def msg_filter(self, msgs, list_of_tickers):
         '''Returns: df with messages from given tickers given a set of messages'''
-        print('Filtering messages:')
+        print('Filtering messages...')
         temp = []
         for ticker in list_of_tickers:
-            print("  Ticker: " + ticker)
+            #print("  Ticker: " + ticker)
             df = msgs[msgs['TICKER'] == ticker]
             temp.append(df)
         filtered_messages = pd.concat(temp)
@@ -27,13 +27,21 @@ class wrangling(object):
         categories = msgs.CATEGORY.unique()
         # ticker, date, category 1, ..., category n
         temp = []
-        for msg in msgs:
+        for inded, msg in msgs.iterrows():
+
             x = {'TICKER': msg['TICKER'], 'DATE': msg['DATE'], 'MSG_ID': msg['MSG_ID']}
             for category in categories:
                 if msg['CATEGORY'] == category:
                     x[category] = 1
                 else:
                     x[category] = 0
+                    
+            #Checking for attachments
+            if msg['ATTACHMENT_ID'] >0:
+                x['HAS_ATTACHMENT'] = 1
+            else:
+                x['HAS_ATTACHMENT'] = 0
+                
             temp.append(x)
         return pd.DataFrame(temp)
 
@@ -46,7 +54,23 @@ class wrangling(object):
 
     def coalesce(self, msgs, period='day'):
         ''' Returns sum of messages per period per ticker '''
+        tickers = msgs.TICKER.unique()
+        days = msgs["DATE"].map(pd.Timestamp.date).unique()
 
+        temp = []
+        for day in days: 
+            print(day)
+            for ticker in tickers: 
+                f = (msgs['DATE'].map(pd.Timestamp.date) == day) & (msgs['TICKER'] == ticker)
+                df = msgs[f]
+                x = {'DATE':day, 'TICKER':ticker, 'NUMBER_OF_MESSAGES':len(df)} 
+                for column in df:
+                    #f = (column == 'DATE') or (column == 'TICKER') or (column == 'MSG_ID')
+                    f = (column in ['DATE', 'TICKER', 'MSG_ID'])
+                    if not f:
+                        x[column] = df[column].sum()
+                temp.append(x)
+        return pd.DataFrame(temp)
 
 
 
@@ -71,9 +95,14 @@ w = wrangling(True)
 
 df = get_tradable_tickers()
 tickers = df['TICKER']
-tickers = ['MOE', 'STB']
+#tickers = ['MOE', 'STB']
 
 msgs = pd.read_excel('..\data\messages.xlsx')
-print(w.msg_filter(msgs, tickers))
+msgs = w.msg_filter(msgs, tickers)
 
-w.message_category(msgs)
+cat = w.message_category(msgs)
+cat.to_excel('..\data\messages_category.xlsx')
+
+coal = w.coalesce(cat)
+coal.to_excel('..\data\messages_coal.xlsx')
+

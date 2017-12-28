@@ -36,7 +36,7 @@ df = get_tradable_tickers()
 OSE = OSE()
 
 tickers = df['TICKER']
-df = OSE.master_df(tickers[0:10])
+df = OSE.master_df(tickers)
 df.to_csv('..\data\EOD.csv')
 
 
@@ -67,7 +67,7 @@ print(df_msg)
     
 
 #[df, not_collected] = OSE.get_NewsWebMessages(range(31100,36400))
-#df.to_excel('messages.xlsx')
+#df.to_excel('..\\data\\messages.xlsx')
 
 
 '''

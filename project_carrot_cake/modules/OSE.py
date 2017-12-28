@@ -173,7 +173,7 @@ class OSE():
         #Extract Ticker / Utsteder ID:
         key_start = '<tr><td class="messageDetailTitleInvert">UtstederID</td>'
         key_end = '<tr><td class="messageDetailTitle">Instrument</td>'
-        msg['ISSUER_ID'] = self._msg_exstract(html, key_start, key_end, 50, -20)
+        msg['TICKER'] = self._msg_exstract(html, key_start, key_end, 50, -20)
 
         #Exstract Intrument
         key_start = '<tr><td class="messageDetailTitle">Instrument</td>'

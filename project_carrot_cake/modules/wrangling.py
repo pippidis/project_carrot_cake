@@ -15,7 +15,7 @@ class wrangling(object):
         temp = []
         for ticker in list_of_tickers:
             print("  Ticker: " + ticker)
-            df = msgs[msgs['ISSUER_ID'] == ticker]
+            df = msgs[msgs['TICKER'] == ticker]
             temp.append(df)
         filtered_messages = pd.concat(temp)
 
@@ -25,10 +25,27 @@ class wrangling(object):
     def message_category(self, msgs):
         '''Returns dataframe of categorized messages'''
         categories = msgs.CATEGORY.unique()
-        for category in categories:
-            
-        
-        print(categories)
+        # ticker, date, category 1, ..., category n
+        temp = []
+        for msg in msgs:
+            x = {'TICKER': msg['TICKER'], 'DATE': msg['DATE'], 'MSG_ID': msg['MSG_ID']}
+            for category in categories:
+                if msg['CATEGORY'] == category:
+                    x[category] = 1
+                else:
+                    x[category] = 0
+            temp.append(x)
+        return pd.DataFrame(temp)
+
+
+
+        #for category in categories:
+            #print('Category: ' + category)
+            #x = msgs[msgs['CATEGORY'] = category]
+            # if category = 'category', set 1 in column 'category'
+
+    def coalesce(self, msgs, period='day'):
+        ''' Returns sum of messages per period per ticker '''
 
 
 

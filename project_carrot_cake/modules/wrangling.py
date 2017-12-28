@@ -18,9 +18,9 @@ class wrangling(object):
             df = msgs[msgs['ISSUER_ID'] == ticker]
             temp.append(df)
         filtered_messages = pd.concat(temp)
-        return filtered_messages 
+        return filtered_messages
 
-
+ 
 
 
 
@@ -38,7 +38,7 @@ def get_tradable_tickers():
     x = find_file('ticker_information.xlsx', path='../data')
     path = x[0]
     df = pd.read_excel(path)
-    return df[ df['TRADE'] == 1 ] 
+    return df[ df['TRADE'] == 1 ]
 
 
 w = wrangling(True)
@@ -49,4 +49,3 @@ tickers = df['TICKER']
 
 msgs = pd.read_excel('..\data\messages.xlsx')
 print(w.msg_filter(msgs, tickers))
-

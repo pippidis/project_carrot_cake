@@ -25,6 +25,9 @@ class wrangling(object):
     def message_category(self, msgs):
         '''Returns dataframe of categorized messages'''
         categories = msgs.CATEGORY.unique()
+        for category in categories:
+            
+        
         print(categories)
 
 
@@ -51,7 +54,9 @@ w = wrangling(True)
 
 df = get_tradable_tickers()
 tickers = df['TICKER']
-#tickers = ['MOE', 'STB']
+tickers = ['MOE', 'STB']
 
 msgs = pd.read_excel('..\data\messages.xlsx')
 print(w.msg_filter(msgs, tickers))
+
+w.message_category(msgs)

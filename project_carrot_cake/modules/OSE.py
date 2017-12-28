@@ -231,26 +231,14 @@ class OSE():
         key_start = '<div class="messageText"><pre class="wraptext">'
         key_end = '</pre></div></td></tr>'
         x = self._msg_exstract(html, key_start, key_end, 0, -0)
-<<<<<<< HEAD
         x = x.replace('\n', ' ')
         x = x.replace('\r', ' ')
-        
-=======
-        x.replace('\n', ' ')
-        x.replace('\r', ' ')
 
->>>>>>> origin/master
         if x.find('<br /><br />')>0:
             msg['TEXT'] = x[:-12]
         else:
             msg['TEXT'] = x
-<<<<<<< HEAD
-        
-=======
 
-        print(msg['TEXT'])
-
->>>>>>> origin/master
         return msg
 
     def _msg_exstract(self, string, key_start, key_end, start_offset=0, end_offset=0):

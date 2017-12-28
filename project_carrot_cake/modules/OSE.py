@@ -7,6 +7,10 @@ Created on Sun Dec 24 15:26:32 2017
 Contains the OSE class, a class that downloads data from the Oslo Stock Exchange
     (OSE). 
 
+
+Finne antall akser: http://www.netfonds.no/quotes/about.php?paper=PLCS.OSE
+Alt er lagret i HTML så lett å hente data fra dem
+
 """
 import urllib.request
 import urllib.error
@@ -20,13 +24,23 @@ class OSE():
     def __init__(self):
         pass
     
+    def get_EOD(self, ticker=''):
+        filename = 'tempfile_downloading.xlsx'
+        URL = self.EOD_URL(ticker)
+        self.get_excel(URL, filename=filename, path='', i=1)
+        df = self.read_excel(filename=filename)
+        self.del_excel(filename=filename)
+        return df
+        
+        
+    
     def EOD_URL(self, ticker='', start=0, stop='now', filename='data.xlsx'):
         '''Returns compleate URL to download EOD data from OSE'''
         
         ticker = ticker.replace(' ', '%20') # To remove whitespace
         if ticker[-4:] is not '.OSE':
            ticker = ticker + '.OSE'
-           
+        
         URL = []
         # Creates the URL:
         URL.append('https://www.oslobors.no/ob/servlets/excel?')
@@ -98,10 +112,10 @@ class OSE():
 
     
     
-    def read_excel(self, path):
+    def read_excel(self, filename):
         '''Reads the excel file and returns a pandas dataframe with the information'''
         try:
-            data_frame = pd.read_excel(path, sheetname=0)
+            data_frame = pd.read_excel(filename, sheetname=0)
         except TypeError  as e:
             print('Problem reading the Excel file from OSE:  - TypeError')
             print('Reason: ' + str(e))
@@ -117,10 +131,10 @@ class OSE():
 
         return(data_frame)
         
-    def del_excel(self, path):
+    def del_excel(self, filename):
         '''Deletes the excel file'''
         try:
-            os.remove(path)
+            os.remove(filename)
         except:
             print('Could not delete the file - it is not that importatnt anyway')
             
@@ -217,10 +231,15 @@ class OSE():
         key_start = '<div class="messageText"><pre class="wraptext">'
         key_end = '</pre></div></td></tr>'
         x = self._msg_exstract(html, key_start, key_end, 0, -0)
+        x.replace('\n', ' ')
+        x.replace('\r', ' ')
+        
         if x.find('<br /><br />')>0:
             msg['TEXT'] = x[:-12]
         else:
             msg['TEXT'] = x
+            
+        print(msg['TEXT'])
         
         return msg
         
@@ -250,7 +269,7 @@ class OSE():
         data = []
         not_collected = []
         for MSG_ID in MSG_IDs:
-            msg = OSE.get_NewsWebMessage(MSG_ID)
+            msg = self.get_NewsWebMessage(MSG_ID=MSG_ID)
             if msg is -2: 
                 print('Error: No message for # ' + str(MSG_ID))
             elif msg is -1: 
@@ -261,19 +280,50 @@ class OSE():
                 data.append(msg)
         df = pd.DataFrame(data)
         if len(not_collected) > 0 and timeout < max_timeout: #Trying again on missed messages
-            print('---- Trying again for missed messages -----')
+            print('---- Trying again for missed messages [Missing = ' + str(len(not_collected)) +' - Timeout = ' +str(timeout+ 0.1)+ ' ] -----')
             [df_missed, x] = self.get_NewsWebMessages(not_collected, timeout= timeout + 0.1)
             df.append(df_missed)
             
         return df, not_collected
 
 
-u = pd.read_csv('ticker_list.csv', sep=';')
-tickers = u['TICKER']
-OSE = OSE()
+    def get_company_data(self, ticker=''):
+        '''Downloads the complany data from OSE'''
+        
+        
+        c_d = {'TICKER':ticker} #Company_data
+        
+        ticker = ticker.replace(' ', '%20') # To remove whitespace
+        if ticker[-4:] is not '.OSE':
+           ticker = ticker + '.OSE'
+        
+        #Downloads the html
+        msg['URL'] = 'https://www.oslobors.no/markedsaktivitet/#/details/' + ticker +'/data'
+        try:
+            fp = urllib.request.urlopen(msg['URL'], timeout=timeout )
+            byte_html = fp.read()
+            html = byte_html.decode("utf8")
+            fp.close()
+        except:
+            return -1
+        
+        # Checking if the message exsists
+        if html.find('Beklager, ingen melding funnet med') > 0:
+            return -2
+        
+        #Exstract the date:
+        start = html.find('<td class="messageDetailTextInvert">') + len('<td class="messageDetailTextInvert"') + 1
+        date_length = len('30.11.2017 13:57')
+        date = html[start:start+date_length]
+        msg['DATE'] = pd.to_datetime(date)
+        
+
+#u = pd.read_csv('ticker_list.csv', sep=';')
+#tickers = u['TICKER']
+#OSE = OSE()
 
 #OSE.get_new_NewsWebMessages(441514, msg_per_day=30)
 
-[df, not_collected] = OSE.get_NewsWebMessages(range(31100,36400))
-df.to_excel('messages.xlsx')
+#[df, not_collected] = OSE.get_NewsWebMessages(range(31100,36400))
+#df.to_excel('messages.xlsx')
 

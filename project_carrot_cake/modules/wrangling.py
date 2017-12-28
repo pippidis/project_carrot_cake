@@ -14,6 +14,7 @@ class wrangling(object):
         print('Filtering messages:')
         temp = []
         for ticker in list_of_tickers:
+<<<<<<< HEAD
             print("  Ticker: " + ticker)
             df = msgs[msgs['ISSUER_ID'] == ticker]
             temp.append(df)
@@ -49,3 +50,11 @@ tickers = df['TICKER']
 
 msgs = pd.read_excel('..\data\messages.xlsx')
 print(w.msg_filter(msgs, tickers))
+=======
+            print('Ticker: ' + ticker)
+            print('Indices: ' + msgs.index[msgs['ISSUER_ID'] == ticker].tolist())
+            #print("DF: " + )
+
+        #return filtered_messages
+        return
+>>>>>>> origin/master

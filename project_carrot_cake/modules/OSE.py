@@ -231,15 +231,13 @@ class OSE():
         key_start = '<div class="messageText"><pre class="wraptext">'
         key_end = '</pre></div></td></tr>'
         x = self._msg_exstract(html, key_start, key_end, 0, -0)
-        x.replace('\n', ' ')
-        x.replace('\r', ' ')
+        x = x.replace('\n', ' ')
+        x = x.replace('\r', ' ')
         
         if x.find('<br /><br />')>0:
             msg['TEXT'] = x[:-12]
         else:
             msg['TEXT'] = x
-            
-        print(msg['TEXT'])
         
         return msg
         
@@ -286,6 +284,16 @@ class OSE():
             
         return df, not_collected
 
+    def master_df(self, tickers):
+        '''Creates tha master dataframe for all EOD information'''
+        temp = []
+        for ticker in tickers:
+            print(ticker)
+            df = self.get_EOD(ticker)
+            df['TICKER'] = [ticker for x in range(0,len(df))]
+            temp.append(df)
+        EOD = pd.concat(temp)
+        return EOD
 
     def get_company_data(self, ticker=''):
         '''Downloads the complany data from OSE'''

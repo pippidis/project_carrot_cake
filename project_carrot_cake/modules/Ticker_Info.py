@@ -35,6 +35,10 @@ df = get_tradable_tickers()
 
 OSE = OSE()
 
+tickers = df['TICKER']
+df = OSE.master_df(tickers[0:10])
+df.to_csv('..\data\EOD.csv')
+
 
 #Get messages: 
 
@@ -55,10 +59,10 @@ for i in range(0, 10): # does it in 1000 msg batches
 print(df_msg)
 
 '''
-tot_msg = 451000
-r = range(1442,1450)
-[df_msg, not_collected] = OSE.get_NewsWebMessages(r)
-df_msg.to_csv('..\\data\\messages.csv')
+#tot_msg = 451000
+#r = range(1442,1450)
+#[df_msg, not_collected] = OSE.get_NewsWebMessages(r)
+#df_msg.to_csv('..\\data\\messages.csv')
 
     
 

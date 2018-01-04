@@ -280,7 +280,7 @@ class OSE():
         if len(not_collected) > 0 and timeout < max_timeout: #Trying again on missed messages
             print('---- Trying again for missed messages [Missing = ' + str(len(not_collected)) +' - Timeout = ' +str(timeout+ 0.1)+ ' ] -----')
             [df_missed, x] = self.get_NewsWebMessages(not_collected, timeout= timeout + 0.1)
-            df.append(df_missed)
+            df = df.append(df_missed)
 
         return df, not_collected
 
